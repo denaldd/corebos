@@ -641,6 +641,35 @@ function appendEmptyFieldRow(ev) {
 	fieldData.push(emptyRow);
 }
 
+function deleteFieldRow() {
+	const checkedRows = getCheckedValues();
+	for (var i = 0; i < checkedRows.length; i++) {
+		fieldGridInstance.removeRow(checkedRows[i]);
+		delete fieldData[checkedRows[i]];
+	}
+	const tmpArray = [];
+	for (var j = 0; j < fieldData.length; j++) {
+		if (fieldData[j] != undefined) {
+			tmpArray[j] = fieldData[j];
+		}
+	}
+	tmpArray.filter((e) => e !== undefined)
+	fieldData = [];
+	fieldData = tmpArray;
+	updateWSSQL();
+}
+
+function getCheckedValues() {
+  var checkboxes = document.getElementsByName('deleteFields');
+  var checkboxesChecked = [];
+  for (var i=0; i<checkboxes.length; i++) {
+     if (checkboxes[i].checked) {
+        checkboxesChecked.push(checkboxes[i].id);
+     }
+  }
+  return checkboxesChecked;
+}
+
 function getInstruction(field, operator, alias) {
 	let fins = '';
 	let fnam = 'expression';
@@ -846,6 +875,26 @@ document.addEventListener('DOMContentLoaded', function (event) {
 		];
 		fieldGridInstance = new tuiGrid({
 			el: document.getElementById('fieldgrid'),
+		    rowHeaders: [
+	        {
+	          type: 'rowNum',
+	          renderer: {
+	            type: RowNumberRenderer
+	          }
+	        },
+	        {
+	          type: 'checkbox',
+	          header: `
+	          <label for="all-checkbox" class="checkbox">
+	            <input type="checkbox" id="all-checkbox" class="hidden-input" name="_checked" />
+	            <span class="custom-input"></span>
+	          </label>
+	        `,
+	          renderer: {
+	            type: CheckboxRenderer
+	          }
+	        }
+		    ],
 			columns: fieldGridColumns,
 			data: fieldData,
 			useClientSort: false,
