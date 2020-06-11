@@ -142,7 +142,12 @@ class DecisionTable extends processcbMap {
 					foreach ($value->decisionTable->searches->search as $k => $v) {
 						foreach ($v->condition as $k => $v) {
 							if (isset($context[(String)$v->input]) && $context[(String)$v->input]!='__IGNORE__') {
-								$uitype = getUItypeByFieldName($module, (String)$v->field);
+								if (strpos((String)$v->field, '.') > 0) {
+									list($relModule, $vField) = explode('.', (String)$v->field);
+								} else {
+									$vField = (String)$v->field;
+								}
+								$uitype = getUItypeByFieldName($module, $vField);
 								if ($uitype==10) {
 									if (!empty($context[(String)$v->input])) {
 										if (strpos($context[(String)$v->input], 'x') > 0) {
@@ -150,7 +155,11 @@ class DecisionTable extends processcbMap {
 										} else {
 											$crmid = $context[(String)$v->input];
 										}
-										$relmod = getSalesEntityType($crmid);
+										if ($crmid == 'null' && isset($relModule)) {
+											$relmod = $relModule;
+										} else {
+											$relmod = getSalesEntityType($crmid);
+										}
 										$queryGenerator->addReferenceModuleFieldCondition($relmod, (String)$v->field, 'id', $crmid, (String)$v->operation, $queryGenerator::$AND);
 									}
 								} else {
